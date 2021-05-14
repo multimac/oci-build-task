@@ -149,10 +149,37 @@ func generateConfig(req Request, configPath string) error {
 	var config BuildkitdConfig
 
 	if len(req.Config.RegistryMirrors) > 0 {
+		var caCerts []string
+		if len(req.Config.RegistryMirrorsCACert) != 0 {
+			caCerts = make([]string, len(req.Config.RegistryMirrorsCACert))
+
+			certDir := filepath.Join(filepath.Dir(configPath), "certs")
+			os.MkdirAll(certDir, 0700)
+
+			i := 0
+			for name, cert := range req.Config.RegistryMirrorsCACert {
+				var path = filepath.Join(certDir, fmt.Sprintf("%s.crt", name))
+
+				f, err := os.Create(path)
+				if err != nil {
+					return err
+				}
+
+				_, err = f.WriteString(cert)
+				if err != nil {
+					return err
+				}
+
+				caCerts[i] = path
+			}
+		}
+
 		var registryConfigs map[string]RegistryConfig
 		registryConfigs = make(map[string]RegistryConfig)
+
 		registryConfigs["docker.io"] = RegistryConfig{
 			Mirrors: req.Config.RegistryMirrors,
+			RootCAs: caCerts,
 		}
 
 		config.Registries = registryConfigs

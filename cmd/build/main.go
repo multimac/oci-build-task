@@ -16,6 +16,7 @@ const buildArgPrefix = "BUILD_ARG_"
 const imageArgPrefix = "IMAGE_ARG_"
 const labelPrefix = "LABEL_"
 
+const registryMirrorsCACertPrefix = "REGISTRY_MIRRORS_CA_CERT_"
 const buildkitSecretPrefix = "BUILDKIT_SECRET_"
 
 func main() {
@@ -27,6 +28,7 @@ func main() {
 	failIf("parse config from env", err)
 
 	// envconfig does not support maps, so we initialize it here
+	req.Config.RegistryMirrorsCACert = make(map[string]string)
 	req.Config.BuildkitSecrets = make(map[string]string)
 
 	// carry over BUILD_ARG_* and LABEL_* vars manually
@@ -50,6 +52,13 @@ func main() {
 				req.Config.Labels,
 				strings.TrimPrefix(env, labelPrefix),
 			)
+		}
+
+		if strings.HasPrefix(env, registryMirrorsCACertPrefix) {
+			seg := strings.SplitN(
+				strings.TrimPrefix(env, registryMirrorsCACertPrefix), "=", 2)
+
+			req.Config.RegistryMirrorsCACert[seg[0]] = seg[1]
 		}
 
 		if strings.HasPrefix(env, buildkitSecretPrefix) {

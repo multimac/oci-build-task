@@ -56,7 +56,8 @@ type Config struct {
 	BuildArgs     []string `json:"build_args"      envconfig:"optional"`
 	BuildArgsFile string   `json:"build_args_file" envconfig:"optional"`
 
-	RegistryMirrors []string `json:"registry_mirrors" envconfig:"REGISTRY_MIRRORS,optional"`
+	RegistryMirrors       []string          `json:"registry_mirrors" envconfig:"REGISTRY_MIRRORS,optional"`
+	RegistryMirrorsCACert map[string]string `json:"registry_mirrors_ca_certs" envconfig:"optional"`
 
 	Labels     []string `json:"labels"      envconfig:"optional"`
 	LabelsFile string   `json:"labels_file" envconfig:"optional"`
